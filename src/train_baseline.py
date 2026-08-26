@@ -75,7 +75,8 @@ print("Number of features:", len(vectorizer.get_feature_names_out()))
 
 model = LogisticRegression(
     max_iter=1000,
-    class_weight="balanced"
+    class_weight="balanced",
+    C = 10
 )
 
 model.fit(X_train_vec, y_train)
@@ -130,19 +131,17 @@ disp.plot(xticks_rotation=45)
 
 plt.tight_layout()
 plt.show()
+    
+# errors = pd.DataFrame({
+#     "text": X_val,
+#     "actual": y_val,
+#     "predicted": val_predictions
+# })
 
+# o365_errors = errors[
+#     (errors["actual"] == "O365") &
+#     (errors["predicted"] == "Support general")
+# ]
 
-# Show most common / high probability features
-
-feature_names = vectorizer.get_feature_names_out()
-
-for class_index, class_name in enumerate(model.classes_):
-
-    top_indices = np.argsort(
-        model.feature_log_prob_[class_index]
-    )[-15:][::-1]
-
-    top_features = feature_names[top_indices]
-
-    print(f"\n{class_name}:")
-    print(", ".join(top_features))
+# for i, text in enumerate(o365_errors["text"], start=1):
+#     print(f"\n{i}. {' '.join(str(text).split())}")
