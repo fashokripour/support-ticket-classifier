@@ -23,7 +23,6 @@ test_texts = X_test["text"]
 train_labels = y_train["category_truth"]
 test_labels = y_test["category_truth"]
 
-
 # Convert text to Bag of Words
 
 custom_stop_words = list(ENGLISH_STOP_WORDS) + [
@@ -38,7 +37,8 @@ custom_stop_words = list(ENGLISH_STOP_WORDS) + [
 ]
 
 vectorizer = CountVectorizer(
-    stop_words=custom_stop_words
+    stop_words=custom_stop_words,
+    ngram_range=(1, 2)
 )
 
 X_train_bow = vectorizer.fit_transform(train_texts)
