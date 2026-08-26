@@ -17,6 +17,7 @@ from sklearn.metrics import (
     ConfusionMatrixDisplay
 )
 
+from sklearn.linear_model import LogisticRegression
 
 # Load original training data
 
@@ -58,17 +59,11 @@ custom_stop_words = list(ENGLISH_STOP_WORDS) + [
 
 # Vectorizer
 
-# vectorizer = CountVectorizer(
-#     stop_words=custom_stop_words,
-#     ngram_range=(1, 2)
-# )
-
 vectorizer = TfidfVectorizer(
     stop_words=custom_stop_words,
     ngram_range=(1, 2)
 )
 
-# Fit vectorizer ONLY on training data
 
 X_train_vec = vectorizer.fit_transform(X_train)
 
@@ -78,12 +73,12 @@ print("Number of features:", len(vectorizer.get_feature_names_out()))
 
 # Train model
 
-# model = MultinomialNB()
-
-model = MultinomialNB(fit_prior=False)
+model = LogisticRegression(
+    max_iter=1000,
+    class_weight="balanced"
+)
 
 model.fit(X_train_vec, y_train)
-
 
 # Validation prediction
 
