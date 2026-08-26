@@ -1,29 +1,49 @@
 import pandas as pd
-
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import (
+    CountVectorizer,
+    TfidfVectorizer,
+    ENGLISH_STOP_WORDS
+)
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    classification_report,
+    confusion_matrix,
+    ConfusionMatrixDisplay
+)
 
 
-# Load data
-X_train = pd.read_csv("./data/X_train.csv")
-X_test = pd.read_csv("./data/X_test.csv")
+# Load original training data
 
-y_train = pd.read_csv("./data/y_train.csv")
-y_test = pd.read_csv("./data/y_test.csv")
+X_data = pd.read_csv("./data/X_train.csv")
+y_data = pd.read_csv("./data/y_train.csv")
+
+texts = X_data["text"]
+labels = y_data["category_truth"]
 
 
-# Extract text and labels
-train_texts = X_train["text"]
-test_texts = X_test["text"]
+print("Total training samples:", len(texts))
 
-train_labels = y_train["category_truth"]
-test_labels = y_test["category_truth"]
 
-# Convert text to Bag of Words
+# Create train / validation split
+
+X_train, X_val, y_train, y_val = train_test_split(
+    texts,
+    labels,
+    test_size=0.20,
+    random_state=42,
+    stratify=labels
+)
+
+print("Train samples:", len(X_train))
+print("Validation samples:", len(X_val))
+
+# Stop words
 
 custom_stop_words = list(ENGLISH_STOP_WORDS) + [
     "ticket",
@@ -33,48 +53,101 @@ custom_stop_words = list(ENGLISH_STOP_WORDS) + [
     "name",
     "location",
     "company",
-    "address"
+    "address",
 ]
 
-vectorizer = CountVectorizer(
+# Vectorizer
+
+# vectorizer = CountVectorizer(
+#     stop_words=custom_stop_words,
+#     ngram_range=(1, 2)
+# )
+
+vectorizer = TfidfVectorizer(
     stop_words=custom_stop_words,
     ngram_range=(1, 2)
 )
 
-X_train_bow = vectorizer.fit_transform(train_texts)
-X_test_bow = vectorizer.transform(test_texts)
+# Fit vectorizer ONLY on training data
 
+X_train_vec = vectorizer.fit_transform(X_train)
 
-print("Vocabulary size:", len(vectorizer.vocabulary_))
-print("Train matrix shape:", X_train_bow.shape)
-print("Test matrix shape:", X_test_bow.shape)
+X_val_vec = vectorizer.transform(X_val)
 
+print("Number of features:", len(vectorizer.get_feature_names_out()))
 
 # Train model
-model = MultinomialNB()
-model.fit(X_train_bow, train_labels)
 
-import numpy as np
+# model = MultinomialNB()
+
+model = MultinomialNB(fit_prior=False)
+
+model.fit(X_train_vec, y_train)
+
+
+# Validation prediction
+
+val_predictions = model.predict(X_val_vec)
+
+# Validation metrics
+
+accuracy = accuracy_score(y_val, val_predictions)
+
+macro_f1 = f1_score(
+    y_val,
+    val_predictions,
+    average="macro"
+)
+
+weighted_f1 = f1_score(
+    y_val,
+    val_predictions,
+    average="weighted"
+)
+
+print("\nValidation Results")
+print("-" * 50)
+
+print(f"Accuracy:     {accuracy:.4f}")
+print(f"Macro F1:     {macro_f1:.4f}")
+print(f"Weighted F1:  {weighted_f1:.4f}")
+
+print("\nClassification Report:")
+print(classification_report(y_val, val_predictions))
+
+
+# Confusion Matrix
+
+labels_order = model.classes_
+
+cm = confusion_matrix(
+    y_val,
+    val_predictions,
+    labels=labels_order
+)
+
+disp = ConfusionMatrixDisplay(
+    confusion_matrix=cm,
+    display_labels=labels_order
+)
+
+disp.plot(xticks_rotation=45)
+
+plt.tight_layout()
+plt.show()
+
+
+# Show most common / high probability features
 
 feature_names = vectorizer.get_feature_names_out()
 
 for class_index, class_name in enumerate(model.classes_):
+
     top_indices = np.argsort(
         model.feature_log_prob_[class_index]
     )[-15:][::-1]
 
-    top_words = feature_names[top_indices]
+    top_features = feature_names[top_indices]
 
     print(f"\n{class_name}:")
-    print(", ".join(top_words))
-
-# Predict
-predictions = model.predict(X_test_bow)
-
-# Evaluation
-accuracy = accuracy_score(test_labels, predictions)
-
-print("\nAccuracy:", accuracy)
-
-print("\nClassification Report:")
-print(classification_report(test_labels, predictions))
+    print(", ".join(top_features))
