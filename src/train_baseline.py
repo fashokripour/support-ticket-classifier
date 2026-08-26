@@ -5,6 +5,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 
 # Load data
@@ -24,7 +25,21 @@ test_labels = y_test["category_truth"]
 
 
 # Convert text to Bag of Words
-vectorizer = CountVectorizer()
+
+custom_stop_words = list(ENGLISH_STOP_WORDS) + [
+    "ticket",
+    "id",
+    "support",
+    "received",
+    "name",
+    "location",
+    "company",
+    "address"
+]
+
+vectorizer = CountVectorizer(
+    stop_words=custom_stop_words
+)
 
 X_train_bow = vectorizer.fit_transform(train_texts)
 X_test_bow = vectorizer.transform(test_texts)
@@ -39,6 +54,19 @@ print("Test matrix shape:", X_test_bow.shape)
 model = MultinomialNB()
 model.fit(X_train_bow, train_labels)
 
+import numpy as np
+
+feature_names = vectorizer.get_feature_names_out()
+
+for class_index, class_name in enumerate(model.classes_):
+    top_indices = np.argsort(
+        model.feature_log_prob_[class_index]
+    )[-15:][::-1]
+
+    top_words = feature_names[top_indices]
+
+    print(f"\n{class_name}:")
+    print(", ".join(top_words))
 
 # Predict
 predictions = model.predict(X_test_bow)
@@ -50,49 +78,3 @@ print("\nAccuracy:", accuracy)
 
 print("\nClassification Report:")
 print(classification_report(test_labels, predictions))
-
-# labels = model.classes_
-
-# cm = confusion_matrix(
-#     test_labels,
-#     predictions,
-#     labels=labels
-# )
-
-# print("\nConfusion Matrix:")
-# print(cm)
-
-# disp = ConfusionMatrixDisplay(
-#     confusion_matrix=cm,
-#     display_labels=labels
-# )
-
-# disp.plot(xticks_rotation=45)
-# plt.tight_layout()
-# plt.show()
-
-errors = pd.DataFrame({
-    "text": test_texts,
-    "actual": test_labels,
-    "predicted": predictions
-})
-
-cs_as_o365 = errors[
-    (errors["actual"] == "Computer-Services") &
-    (errors["predicted"] == "O365")
-]
-
-import re
-
-def clean_text(text):
-    text = re.sub(r"\s+", " ", str(text))
-    return text.strip()
-
-cs_as_o365 = cs_as_o365.copy()
-cs_as_o365["clean_text"] = cs_as_o365["text"].apply(clean_text)
-
-for i, text in enumerate(cs_as_o365["text"].head(10), start=1):
-    text = re.sub(r"\s+", " ", text).strip()
-    print(f"\n{i}. {text}")
-
-# print(ad_as_general[["text"]].to_string())
