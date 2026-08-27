@@ -10,7 +10,8 @@ IT support systems receive tickets related to different services such as file ac
 
 This project explores a machine learning approach for automatically classifying support tickets based on their text.
 
-I developed the classifier by experimenting with different text representations and machine learning approaches, including Bag of Words, TF-IDF, n-grams, Naive Bayes, and Logistic Regression. The final model was selected using a validation set and was evaluated once on a separate, untouched test set.
+I developed the classifier by experimenting with different text representations and machine learning approaches, including Bag of Words, TF-IDF, n-grams, Naive Bayes, and Logistic Regression. After an initial exploratory phase, the evaluation workflow was refactored to use a fixed training/validation split for model selection.
+The provided test set was then used to report the final model performance.
 
 ## Dataset
 
@@ -86,7 +87,7 @@ The general workflow was:
 10. Compare different regularization strengths on the validation set.
 11. Select the final configuration.
 12. Retrain the selected pipeline using all available training data.
-13. Evaluate the final model once on the untouched test set.
+13. Evaluate the selected model on the provided test set.
 
 ## Final Model
 
@@ -128,21 +129,21 @@ After model selection, the final pipeline was retrained using all 1,572 availabl
 
 | Metric | Score |
 |---|---:|
-| Accuracy | **0.81** |
-| Macro F1 | **0.77** |
-| Weighted F1 | **0.81** |
+| Accuracy | **0.82** |
+| Macro F1 | **0.79** |
+| Weighted F1 | **0.82** |
 
 ### Per-Class Performance
 
 | Category | Precision | Recall | F1 |
 |---|---:|---:|---:|
-| Active Directory | 0.65 | 0.57 | 0.61 |
-| Computer-Services | 0.83 | 0.59 | 0.69 |
+| Active Directory | 0.83 | 0.59 | 0.69 |
+| Computer-Services | 0.85 | 0.56 | 0.68 |
 | EOL | 1.00 | 1.00 | 1.00 |
-| Fileservice | 0.97 | 0.93 | 0.95 |
-| O365 | 0.68 | 0.75 | 0.72 |
-| Software | 0.63 | 0.59 | 0.61 |
-| Support general | 0.79 | 0.86 | 0.82 |
+| Fileservice | 0.96 | 0.94 | 0.95 |
+| O365 | 0.67 | 0.75 | 0.71 |
+| Software | 0.63 | 0.66 | 0.64 |
+| Support general | 0.80 | 0.86 | 0.83 |
 
 Macro F1 was considered alongside accuracy because of the class imbalance in the dataset.
 

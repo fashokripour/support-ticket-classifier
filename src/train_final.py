@@ -2,8 +2,11 @@ import pandas as pd
 import joblib
 
 from sklearn.pipeline import Pipeline
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.feature_extraction.text import (
+    TfidfVectorizer,
+    ENGLISH_STOP_WORDS
+)
 
 # Load training data
 
@@ -20,7 +23,7 @@ labels = data["category_truth"]
 
 # Custom stop words
 
-custom_stop_words = [
+custom_stop_words = list(ENGLISH_STOP_WORDS) + [
     "ticket",
     "id",
     "support",
@@ -30,7 +33,6 @@ custom_stop_words = [
     "location",
     "address"
 ]
-
 # Build final pipeline
 
 pipeline = Pipeline([
