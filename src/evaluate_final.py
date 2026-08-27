@@ -85,5 +85,11 @@ disp.plot(
     xticks_rotation=45
 )
 
+plt.savefig(
+    "results/confusion_matrix.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
 plt.tight_layout()
 plt.show()
