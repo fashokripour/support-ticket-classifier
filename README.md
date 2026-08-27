@@ -125,7 +125,7 @@ Model selection was performed using the validation set rather than the final tes
 
 ## Final Results
 
-After model selection, the final pipeline was retrained using all 1,572 available training samples and evaluated on the untouched test set of 657 tickets.
+After model selection, the final pipeline was retrained using all 1,572 available training samples and evaluated on the provided test set of 657 tickets.
 
 | Metric | Score |
 |---|---:|
