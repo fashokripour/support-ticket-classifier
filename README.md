@@ -270,6 +270,42 @@ Confidence: 95.74%
 
 The reported confidence is the classifier's predicted probability and should not necessarily be interpreted as a calibrated real-world probability.
 
+## Interactive Demo
+
+The project includes a simple interactive demo built with Streamlit.
+
+The demo allows users to enter a support ticket and receive:
+
+- The predicted support category
+- The model confidence score
+- The probability assigned to each category
+- A manual-review warning for predictions with confidence below 50%
+
+To run the demo locally:
+
+```bash
+streamlit run app.py
+```
+
+Then open the local address provided by Streamlit in your browser.
+
+For example, a user can enter:
+
+```text
+Please install printer driver on my laptop.
+```
+
+and receive a prediction such as:
+
+```text
+Predicted category: Computer-Services
+Model confidence: 98.54%
+```
+
+The probability table also makes it possible to inspect cases where the classifier is uncertain between multiple categories.
+
+> **Note:** The 50% threshold used for the manual-review warning is a demonstration threshold and was not optimized or validated as a production decision threshold. Model probability outputs have also not been explicitly calibrated.
+
 ## Evaluation
 
 To reproduce the final evaluation:
@@ -300,6 +336,14 @@ This project has several limitations:
 
 The model should therefore be considered an experimental machine learning classifier rather than a production-ready ticket routing system.
 
+## Development Notes
+
+The main focus of this project was learning and implementing the machine learning workflow, including data exploration, text representation, model experimentation, validation, class imbalance handling, evaluation, and error analysis.
+
+I used ChatGPT as a learning and development assistant throughout the project to help explain machine learning concepts, review experiments, and provide guidance when working with unfamiliar APIs and syntax.
+
+The Streamlit demo and its UI code were generated with ChatGPT assistance. Streamlit and frontend development were not part of my prior experience, and the interface is included primarily to provide an accessible demonstration of the trained machine learning model.
+
 ## Future Improvements
 
 Possible future improvements include:
@@ -312,10 +356,10 @@ Possible future improvements include:
 - Adding useful ticket metadata if available.
 - Comparing the classical ML approach with modern embedding-based or transformer-based models.
 - Calibrating prediction probabilities.
-- Adding a simple interactive web interface for ticket classification.
 
 ## Technologies
 
+- Streamlit
 - Python
 - Pandas
 - Scikit-learn
